@@ -1,17 +1,18 @@
-import './App.css';
-import TOC from './components/TOC';
-import Content from './components/Content'
-import Subject from './components/Subject'
 import { Component } from 'react';
-
-
+import TOC from './components/TOC';
+import ReadContent from './components/ReadContent';
+import CreateContent from './components/CreateContnet';
+import Subject from './components/Subject'
+import Control from './components/Control'
+import './App.css';
 
 class App extends Component {
   constructor(props) {
     super(props);
+    this.max_id = 3;
     this.state = {
-      mode: 'read',
-      selected_content_id: 1,
+      mode: 'create',
+      selected_content_id: 0,
       subject: { title: "WEB", sub: "World Wide Web!!! YEAH!!" },
       test2: { sub: "test용" },
       welcome: { title: 'Welcome', desc: 'Hello, React!!' },
@@ -25,21 +26,38 @@ class App extends Component {
 
   render() {
     console.log('App render');
-    var _title, _desc = null;
+    var _title, _desc, _article = null;
     if (this.state.mode === 'welcome') {
       _title = this.state.welcome.title;
       _desc = this.state.welcome.desc;
+      _article = <ReadContent title={_title} desc={_desc}></ReadContent>;
     } else if (this.state.mode === 'read') {
       var i = 0;
-      while (i < this.state.contents.length) {
+      for (i = 0; i < this.state.contents.length ; i++) {
         var data = this.state.contents[i];
+        if(i == 0){
+          _title = this.state.subject.title;
+          _desc = this.state.subject.sub;
+        }
         if (data.id === this.state.selected_content_id) {
           _title = data.title;
           _desc = data.desc;
           break;
         }
-        i = i + 1;
       }
+      _article = <ReadContent title={_title} desc={_desc}></ReadContent>;
+    } else if(this.state.mode === 'create'){
+      _article = <CreateContent onSubmit={function(_title, _desc){
+
+        // add content to this.state.contents
+        this.max_id = this.max_id +1;
+        // console.log(this.max_id);
+        // this.state.contents.push({id:this.max_id, title:_title, desc:_desc});
+        var _contents = this.state.contents.concat({id:this.max_id, title:_title, desc:_desc})
+        this.setState({
+          contents:_contents
+        });
+      }.bind(this)}></CreateContent>
     }
 
     return (
@@ -48,19 +66,30 @@ class App extends Component {
           {this.state.subject.title}
           sub={this.state.subject.sub}
           onChangePage={function () {
-            this.setState({ mode: 'welcome' });
+            this.setState({ 
+              mode: 'read',
+          selected_content_id : 0});
           }.bind(this)}
         >
         </Subject>
+
         <TOC onChangePage={function (id) {
           this.setState({
             mode: 'read',
             selected_content_id: Number(id)
           });
-
         }.bind(this)}
           data={this.state.contents}></TOC>
-        <Content title={_title} desc={_desc}></Content>
+
+        <Control onChangeMode={function(_mode){
+          this.setState({
+            mode : _mode
+          });
+
+        }.bind(this)}></Control>
+
+
+        {_article}
       </div>
     );
   }
