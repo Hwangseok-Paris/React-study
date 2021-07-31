@@ -33,9 +33,9 @@ class App extends Component {
       _article = <ReadContent title={_title} desc={_desc}></ReadContent>;
     } else if (this.state.mode === 'read') {
       var i = 0;
-      for (i = 0; i < this.state.contents.length ; i++) {
+      for (i = 0; i < this.state.contents.length; i++) {
         var data = this.state.contents[i];
-        if(i == 0){
+        if (i == 0) {
           _title = this.state.subject.title;
           _desc = this.state.subject.sub;
         }
@@ -46,16 +46,22 @@ class App extends Component {
         }
       }
       _article = <ReadContent title={_title} desc={_desc}></ReadContent>;
-    } else if(this.state.mode === 'create'){
-      _article = <CreateContent onSubmit={function(_title, _desc){
+    } else if (this.state.mode === 'create') {
+      _article = <CreateContent onSubmit={function (_title, _desc) {
 
         // add content to this.state.contents
-        this.max_id = this.max_id +1;
+        this.max_id = this.max_id + 1;
         // console.log(this.max_id);
-        // this.state.contents.push({id:this.max_id, title:_title, desc:_desc});
-        var _contents = this.state.contents.concat({id:this.max_id, title:_title, desc:_desc})
+        // this.state.contents.push(
+        // { id: this.max_id, title: _title, desc: _desc }
+        // );
+        // var _contents = this.state.contents.concat({id:this.max_id, title:_title, desc:_desc})
+
+        var newContents = Array.from(this.state.contents);
+        newContents.push({ id: this.max_id, title: _title, desc: _desc })
+
         this.setState({
-          contents:_contents
+          contents: newContents
         });
       }.bind(this)}></CreateContent>
     }
@@ -66,9 +72,10 @@ class App extends Component {
           {this.state.subject.title}
           sub={this.state.subject.sub}
           onChangePage={function () {
-            this.setState({ 
+            this.setState({
               mode: 'read',
-          selected_content_id : 0});
+              selected_content_id: 0
+            });
           }.bind(this)}
         >
         </Subject>
@@ -81,9 +88,9 @@ class App extends Component {
         }.bind(this)}
           data={this.state.contents}></TOC>
 
-        <Control onChangeMode={function(_mode){
+        <Control onChangeMode={function (_mode) {
           this.setState({
-            mode : _mode
+            mode: _mode
           });
 
         }.bind(this)}></Control>
