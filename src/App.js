@@ -12,7 +12,7 @@ class App extends Component {
     super(props);
     this.max_id = 3;
     this.state = {
-      mode: 'create',
+      mode: 'welcome',
       selected_content_id: 0,
       subject: { title: "WEB", sub: "World Wide Web!!! YEAH!!" },
       test2: { sub: "test용" },
@@ -28,7 +28,10 @@ class App extends Component {
     var i = 0;
     for (i = 0; i < this.state.contents.length; i++) {
       var data = this.state.contents[i];
-
+      if (data.id === this.state.selected_content_id) {
+        return data;
+        break;
+      }
     }
   }
 
@@ -39,20 +42,8 @@ class App extends Component {
       _desc = this.state.welcome.desc;
       _article = <ReadContent title={_title} desc={_desc}></ReadContent>;
     } else if (this.state.mode === 'read') {
-      var i = 0;
-      for (i = 0; i < this.state.contents.length; i++) {
-        var data = this.state.contents[i];
-        if (i == 0) {
-          _title = this.state.subject.title;
-          _desc = this.state.subject.sub;
-        }
-        if (data.id === this.state.selected_content_id) {
-          _title = data.title;
-          _desc = data.desc;
-          break;
-        }
-      }
-      _article = <ReadContent title={_title} desc={_desc}></ReadContent>;
+      var _content = this.getReadContent();
+      _article = <ReadContent title={_content.title} desc={_content.desc}></ReadContent>;
     } else if (this.state.mode === 'create') {
       _article = <CreateContent onSubmit={function (_title, _desc) {
 
@@ -68,27 +59,33 @@ class App extends Component {
         newContents.push({ id: this.max_id, title: _title, desc: _desc })
 
         this.setState({
-          contents: newContents
+          contents: newContents,
+          mode: 'read',
+          selected_content_id: this.max_id
         });
       }.bind(this)}></CreateContent>
     } else if (this.state.mode === 'update') {
-      _article = <UpdateContent onSubmit={function (_title, _desc) {
-
-        // add content to this.state.contents
-        this.max_id = this.max_id + 1;
-        // console.log(this.max_id);
-        // this.state.contents.push(
-        // { id: this.max_id, title: _title, desc: _desc }
-        // );
-        // var _contents = this.state.contents.concat({id:this.max_id, title:_title, desc:_desc})
-
-        var newContents = Array.from(this.state.contents);
-        newContents.push({ id: this.max_id, title: _title, desc: _desc })
-
-        this.setState({
-          contents: newContents
-        });
-      }.bind(this)}></UpdateContent>
+      _content = this.getReadContent();
+      _article = <UpdateContent data={_content} onSubmit={
+        function (_id, _title, _desc) {
+          // add content to this.state.contents
+          // console.log(this.max_id);
+          // this.state.contents.push(
+          // { id: this.max_id, title: _title, desc: _desc }
+          // );
+          // var _contents = this.state.contents.concat({id:this.max_id, title:_title, desc:_desc})
+          var updateContents = Array.from(this.state.contents);
+          for (var i = 0; i < updateContents.length; i++) {
+            if (updateContents[i].id === _id) {
+              updateContents[i] = { id: _id, title: _title, desc: _desc };
+              break;
+            }
+          }
+          this.setState({
+            contents: updateContents,
+            mode: 'read'
+          })
+        }.bind(this)}></UpdateContent>
     }
     return _article;
   }
@@ -118,14 +115,27 @@ class App extends Component {
           data={this.state.contents}></TOC>
 
         <Control onChangeMode={function (_mode) {
-          this.setState({
-            mode: _mode
-          });
-
+          if (_mode === 'delete') {
+            if (window.confirm('삭제하시겠습니까?')) {
+              var _contents = Array.from(this.state.contents);
+              for (var i = 0; i < _contents.length; i++) {
+                if (_contents[i].id === this.state.selected_content_id) {
+                  _contents.splice(i, 1);
+                  break;
+                }
+              }
+              this.setState({
+                contents: _contents,
+                mode: 'welcome'
+              });
+              alert("삭제가 완료되었습니다.");
+            }
+          } else {
+            this.setState({
+              mode: _mode
+            });
+          }
         }.bind(this)}></Control>
-
-
-
         {this.getContent()}
       </div>
     );
