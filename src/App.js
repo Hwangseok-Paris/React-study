@@ -94,8 +94,6 @@ class App extends Component {
           });
 
         }.bind(this)}></Control>
-
-
         {_article}
       </div>
     );
