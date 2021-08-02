@@ -2,6 +2,7 @@ import { Component } from 'react';
 import TOC from './components/TOC';
 import ReadContent from './components/ReadContent';
 import CreateContent from './components/CreateContnet';
+import UpdateContent from './components/UpdateContent';
 import Subject from './components/Subject'
 import Control from './components/Control'
 import './App.css';
@@ -23,9 +24,15 @@ class App extends Component {
       ]
     }
   }
+  getReadContent() {
+    var i = 0;
+    for (i = 0; i < this.state.contents.length; i++) {
+      var data = this.state.contents[i];
 
-  render() {
-    console.log('App render');
+    }
+  }
+
+  getContent() {
     var _title, _desc, _article = null;
     if (this.state.mode === 'welcome') {
       _title = this.state.welcome.title;
@@ -64,8 +71,30 @@ class App extends Component {
           contents: newContents
         });
       }.bind(this)}></CreateContent>
-    }
+    } else if (this.state.mode === 'update') {
+      _article = <UpdateContent onSubmit={function (_title, _desc) {
 
+        // add content to this.state.contents
+        this.max_id = this.max_id + 1;
+        // console.log(this.max_id);
+        // this.state.contents.push(
+        // { id: this.max_id, title: _title, desc: _desc }
+        // );
+        // var _contents = this.state.contents.concat({id:this.max_id, title:_title, desc:_desc})
+
+        var newContents = Array.from(this.state.contents);
+        newContents.push({ id: this.max_id, title: _title, desc: _desc })
+
+        this.setState({
+          contents: newContents
+        });
+      }.bind(this)}></UpdateContent>
+    }
+    return _article;
+  }
+
+  render() {
+    console.log('App render');
     return (
       <div className="App">
         <Subject title=
@@ -94,10 +123,14 @@ class App extends Component {
           });
 
         }.bind(this)}></Control>
-        {_article}
+
+
+
+        {this.getContent()}
       </div>
     );
   }
 }
+
 
 export default App;
